@@ -1,0 +1,7 @@
+AWS::RDS::DBCluster:
+  Properties:
+    MasterUsername: "\"username\""
+    MasterUserPassword: "\"password\""
+    Engine: "\"aurora\""
+    DBSubnetGroupName: "\"db-subnet-group-name\""
+    DBClusterParameterGroupName: "\"db-param-group-name\""

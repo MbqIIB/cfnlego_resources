@@ -1,0 +1,50 @@
+AWS::AutoScaling::AutoScalingGroup:
+  Attributes:
+    CreationPolicy:
+      ResourceSignal: |
+        {
+          "Count"   => 1,
+          "Timeout" => "PT15M"
+        }
+    UpdatePolicy:
+      AutoScalingRollingUpdate: |
+        {
+          "MaxBatchSize" => "1",
+          "MinInstancesInService" => "1",
+          "PauseTime" => "PT1M0S",
+          "SuspendProcesses" => ["Launch", "Terminate", "HealthCheck", "ReplaceUnhealthy", "AZRebalance", "AlarmNotification", "ScheduledActions", "AddToLoadBalancer"],
+          "WaitOnResourceSignals" => true
+        }
+      AutoScalingScheduledAction: |
+        { "IgnoreUnmodifiedGroupSizeProperties" => true }
+  Properties:
+     AvailabilityZones: ["ap-southeast-2a", "ap-southeast-2b"]
+     Cooldown: "300"
+     DesiredCapacity: "2"
+     HealthCheckGracePeriod: "300"
+     HealthCheckType: "\"ELB\""
+     InstanceId: "\"i-xxxxxx\""
+     LaunchConfigurationName: "\"launchconfig-xxxxxx\"" #Ref("LaunchConfiguration")
+     LoadBalancerNames: |
+       ["lb-xxxx"] #[Ref("LoadBalancer")]
+     MaxSize: "2"
+     MetricsCollection: |
+       [{
+         "Granularity" => "1Minute",
+        "Metrics" => [ "GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances " ]
+       }]
+     MinSize: "1"
+     NotificationConfigurations: | 
+       [{
+          "NotificationTypes" => [ "autoscaling:EC2_INSTANCE_LAUNCH", "autoscaling:EC2_INSTANCE_LAUNCH_ERROR", "autoscaling:EC2_INSTANCE_TERMINATE", "autoscaling:EC2_INSTANCE_TERMINATE_ERROR", "autoscaling:TEST_NOTIFICATION" ],
+          "TopicARN" => "arn:aws:::xxxx"
+       }]
+     PlacementGroup: "\"placement group name\""
+     Tags: |
+       [{
+         "Key" => "Application",
+         "Value" => "",
+         "PropagateAtLaunch" => true
+       }]     
+     TerminationPolicies: ["OldestInstance", "NewestInstance", "OldestLaunchConfiguration", "ClosestToNextInstanceHour", "Default"]
+     VPCZoneIdentifier: ["subnet-xxxx", "subnet-xxxx"]
